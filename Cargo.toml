@@ -2,6 +2,9 @@
 name = "nicotine"
 version = "0.1.0"
 edition = "2021"
+description = "High-performance EVE Online multiboxing tool for X11/Linux"
+license = "MIT"
+repository = "https://github.com/isomerc/nicotine"
 
 [dependencies]
 x11rb = { version = "0.13", features = ["all-extensions"] }
