@@ -1,8 +1,7 @@
 use crate::cycle_state::CycleState;
-use crate::x11_manager::{EveWindow, X11Manager};
+use crate::x11_manager::X11Manager;
 use eframe::egui;
 use std::sync::{Arc, Mutex};
-use x11rb::connection::Connection;
 
 pub struct OverlayApp {
     x11: Arc<X11Manager>,
@@ -25,7 +24,9 @@ impl OverlayApp {
 
         fonts.font_data.insert(
             "jetbrains_mono".to_owned(),
-            egui::FontData::from_static(include_bytes!("../assets/fonts/JetBrainsMono-Regular.ttf")),
+            egui::FontData::from_static(include_bytes!(
+                "../assets/fonts/JetBrainsMono-Regular.ttf"
+            )),
         );
 
         // Set JetBrains Mono as the default font
@@ -55,7 +56,7 @@ impl OverlayApp {
 }
 
 impl eframe::App for OverlayApp {
-    fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
+    fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         // Request repaint for smooth updates
         ctx.request_repaint();
 
@@ -69,7 +70,7 @@ impl eframe::App for OverlayApp {
             state.sync_with_active(active_window);
         }
 
-        let panel_response = egui::CentralPanel::default()
+        let _panel_response = egui::CentralPanel::default()
             .frame(
                 egui::Frame::none()
                     .fill(egui::Color32::from_rgba_unmultiplied(0, 0, 0, 200))
@@ -131,9 +132,17 @@ impl eframe::App for OverlayApp {
 
                 for (i, window) in windows.iter().enumerate() {
                     let text = if i == current_index {
-                        format!("> [{}] {}", i + 1, &window.title[..window.title.len().min(20)])
+                        format!(
+                            "> [{}] {}",
+                            i + 1,
+                            &window.title[..window.title.len().min(20)]
+                        )
                     } else {
-                        format!("  [{}] {}", i + 1, &window.title[..window.title.len().min(20)])
+                        format!(
+                            "  [{}] {}",
+                            i + 1,
+                            &window.title[..window.title.len().min(20)]
+                        )
                     };
 
                     ui.monospace(text);
@@ -171,7 +180,9 @@ impl eframe::App for OverlayApp {
                 self.drag_accumulated += delta;
 
                 // Use cached window ID for instant movement
-                if let (Some(start_window), Some(window_id)) = (self.drag_start_window_pos, self.overlay_window_id) {
+                if let (Some(start_window), Some(window_id)) =
+                    (self.drag_start_window_pos, self.overlay_window_id)
+                {
                     let new_x = (start_window.x + self.drag_accumulated.x) as i32;
                     let new_y = (start_window.y + self.drag_accumulated.y) as i32;
 

@@ -9,11 +9,11 @@ use config::Config;
 use cycle_state::CycleState;
 use daemon::Daemon;
 use daemonize::Daemonize;
+#[allow(deprecated)]
 use nix::fcntl::{flock, FlockArg};
 use overlay::run_overlay;
 use std::env;
-use std::fs::{File, OpenOptions};
-use std::io::Write;
+use std::fs::OpenOptions;
 use std::os::unix::fs::OpenOptionsExt;
 use std::os::unix::io::AsRawFd;
 use std::sync::{Arc, Mutex};
@@ -31,9 +31,7 @@ fn main() -> Result<()> {
             println!("Starting Nicotine 🚬");
 
             // Daemonize the process (safe Rust wrapper)
-            let daemonize = Daemonize::new()
-                .working_directory("/tmp")
-                .umask(0o027);
+            let daemonize = Daemonize::new().working_directory("/tmp").umask(0o027);
 
             match daemonize.start() {
                 Ok(_) => {
@@ -56,7 +54,9 @@ fn main() -> Result<()> {
                         state.lock().unwrap().update_windows(windows);
                     }
 
-                    if let Err(e) = run_overlay(x11, state, config.overlay_x, config.overlay_y, config) {
+                    if let Err(e) =
+                        run_overlay(x11, state, config.overlay_x, config.overlay_y, config)
+                    {
                         eprintln!("Overlay error: {}", e);
                         std::process::exit(1);
                     }
@@ -123,7 +123,7 @@ fn main() -> Result<()> {
 
             // Try to acquire lock, exit immediately if already running
             let lock_file = "/tmp/nicotine-cycle.lock";
-            let mut file = match OpenOptions::new()
+            let file = match OpenOptions::new()
                 .write(true)
                 .create(true)
                 .mode(0o644)
@@ -134,6 +134,7 @@ fn main() -> Result<()> {
             };
 
             // Try to lock (non-blocking)
+            #[allow(deprecated)]
             if flock(file.as_raw_fd(), FlockArg::LockExclusiveNonblock).is_err() {
                 return Ok(()); // Already running, skip this cycle
             }
@@ -167,7 +168,7 @@ fn main() -> Result<()> {
 
             // Try to acquire lock, exit immediately if already running
             let lock_file = "/tmp/nicotine-cycle.lock";
-            let mut file = match OpenOptions::new()
+            let file = match OpenOptions::new()
                 .write(true)
                 .create(true)
                 .mode(0o644)
@@ -178,6 +179,7 @@ fn main() -> Result<()> {
             };
 
             // Try to lock (non-blocking)
+            #[allow(deprecated)]
             if flock(file.as_raw_fd(), FlockArg::LockExclusiveNonblock).is_err() {
                 return Ok(()); // Already running, skip this cycle
             }

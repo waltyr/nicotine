@@ -1,5 +1,5 @@
-use serde::{Deserialize, Serialize};
 use anyhow::{Context, Result};
+use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::PathBuf;
 
@@ -64,8 +64,8 @@ impl Config {
         let config = Self {
             display_width,
             display_height,
-            panel_height: 0,  // Assume no panel by default
-            eve_width: (display_width as f32 * 0.54) as u32,  // ~54% of width
+            panel_height: 0, // Assume no panel by default
+            eve_width: (display_width as f32 * 0.54) as u32, // ~54% of width
             eve_height: display_height,
             overlay_x: 10.0,
             overlay_y: 10.0,

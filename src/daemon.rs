@@ -4,8 +4,8 @@ use anyhow::Result;
 use std::fs;
 use std::io::{BufRead, BufReader, Write};
 use std::os::unix::net::{UnixListener, UnixStream};
-use std::sync::{Arc, Mutex};
 use std::path::Path;
+use std::sync::{Arc, Mutex};
 
 const SOCKET_PATH: &str = "/tmp/nicotine.sock";
 
@@ -56,12 +56,10 @@ impl Daemon {
         // Refresh window list periodically in background
         let x11_clone = Arc::clone(&self.x11);
         let state_clone = Arc::clone(&self.state);
-        std::thread::spawn(move || {
-            loop {
-                std::thread::sleep(std::time::Duration::from_millis(500));
-                if let Ok(windows) = x11_clone.get_eve_windows() {
-                    state_clone.lock().unwrap().update_windows(windows);
-                }
+        std::thread::spawn(move || loop {
+            std::thread::sleep(std::time::Duration::from_millis(500));
+            if let Ok(windows) = x11_clone.get_eve_windows() {
+                state_clone.lock().unwrap().update_windows(windows);
             }
         });
 

@@ -1,9 +1,8 @@
 use anyhow::{Context, Result};
+use std::sync::Arc;
 use x11rb::connection::Connection;
 use x11rb::protocol::xproto::*;
-use x11rb::protocol::Event;
 use x11rb::rust_connection::RustConnection;
-use std::sync::{Arc, Mutex};
 
 pub struct X11Manager {
     conn: Arc<RustConnection>,
@@ -19,8 +18,8 @@ pub struct EveWindow {
 
 impl X11Manager {
     pub fn new() -> Result<Self> {
-        let (conn, screen_num) = RustConnection::connect(None)
-            .context("Failed to connect to X11 server")?;
+        let (conn, screen_num) =
+            RustConnection::connect(None).context("Failed to connect to X11 server")?;
 
         let conn = Arc::new(conn);
 
@@ -42,21 +41,16 @@ impl X11Manager {
         let root = screen.root;
 
         // Get _NET_CLIENT_LIST atom
-        let net_client_list = self.conn
+        let net_client_list = self
+            .conn
             .intern_atom(false, b"_NET_CLIENT_LIST")?
             .reply()?
             .atom;
 
         // Get list of all windows
-        let client_list_reply = self.conn
-            .get_property(
-                false,
-                root,
-                net_client_list,
-                AtomEnum::WINDOW,
-                0,
-                u32::MAX,
-            )?
+        let client_list_reply = self
+            .conn
+            .get_property(false, root, net_client_list, AtomEnum::WINDOW, 0, u32::MAX)?
             .reply()?;
 
         let windows: Vec<u32> = client_list_reply
@@ -85,23 +79,19 @@ impl X11Manager {
         let screen = &self.conn.setup().roots[self.screen_num];
         let root = screen.root;
 
-        let net_active_window = self.conn
+        let net_active_window = self
+            .conn
             .intern_atom(false, b"_NET_ACTIVE_WINDOW")?
             .reply()?
             .atom;
 
-        let reply = self.conn
-            .get_property(
-                false,
-                root,
-                net_active_window,
-                AtomEnum::WINDOW,
-                0,
-                1,
-            )?
+        let reply = self
+            .conn
+            .get_property(false, root, net_active_window, AtomEnum::WINDOW, 0, 1)?
             .reply()?;
 
-        let active: Vec<u32> = reply.value32()
+        let active: Vec<u32> = reply
+            .value32()
             .ok_or_else(|| anyhow::anyhow!("Failed to get active window"))?
             .collect();
 
@@ -135,7 +125,14 @@ impl X11Manager {
         Ok(())
     }
 
-    pub fn stack_windows(&self, windows: &[EveWindow], x: i32, y: i32, width: u32, height: u32) -> Result<()> {
+    pub fn stack_windows(
+        &self,
+        windows: &[EveWindow],
+        x: i32,
+        y: i32,
+        width: u32,
+        height: u32,
+    ) -> Result<()> {
         for window in windows {
             // Move and resize window
             let values = ConfigureWindowAux::new()
@@ -153,17 +150,12 @@ impl X11Manager {
 
     fn get_window_title(&self, window: u32) -> Result<String> {
         // Try _NET_WM_NAME first (UTF-8)
-        let net_wm_name = self.conn
-            .intern_atom(false, b"_NET_WM_NAME")?
-            .reply()?
-            .atom;
+        let net_wm_name = self.conn.intern_atom(false, b"_NET_WM_NAME")?.reply()?.atom;
 
-        let utf8_string = self.conn
-            .intern_atom(false, b"UTF8_STRING")?
-            .reply()?
-            .atom;
+        let utf8_string = self.conn.intern_atom(false, b"UTF8_STRING")?.reply()?.atom;
 
-        if let Ok(reply) = self.conn
+        if let Ok(reply) = self
+            .conn
             .get_property(false, window, net_wm_name, utf8_string, 0, 1024)?
             .reply()
         {
@@ -175,7 +167,8 @@ impl X11Manager {
         }
 
         // Fall back to WM_NAME
-        if let Ok(reply) = self.conn
+        if let Ok(reply) = self
+            .conn
             .get_property(false, window, AtomEnum::WM_NAME, AtomEnum::STRING, 0, 1024)?
             .reply()
         {
@@ -187,24 +180,18 @@ impl X11Manager {
         Ok(String::new())
     }
 
-    pub fn get_connection(&self) -> Arc<RustConnection> {
-        Arc::clone(&self.conn)
-    }
-
-    pub fn get_screen_num(&self) -> usize {
-        self.screen_num
-    }
-
     pub fn find_window_by_title(&self, title: &str) -> Result<Option<u32>> {
         let screen = &self.conn.setup().roots[self.screen_num];
         let root = screen.root;
 
-        let net_client_list = self.conn
+        let net_client_list = self
+            .conn
             .intern_atom(false, b"_NET_CLIENT_LIST")?
             .reply()?
             .atom;
 
-        let client_list_reply = self.conn
+        let client_list_reply = self
+            .conn
             .get_property(false, root, net_client_list, AtomEnum::WINDOW, 0, u32::MAX)?
             .reply()?;
 
@@ -228,13 +215,6 @@ impl X11Manager {
         let values = ConfigureWindowAux::new().x(x).y(y);
         self.conn.configure_window(window_id, &values)?;
         self.conn.flush()?;
-        Ok(())
-    }
-
-    pub fn move_window_by_title(&self, title: &str, x: i32, y: i32) -> Result<()> {
-        if let Some(window_id) = self.find_window_by_title(title)? {
-            self.move_window(window_id, x, y)?;
-        }
         Ok(())
     }
 }
