@@ -52,7 +52,7 @@ impl eframe::App for OverlayApp {
                 ui.horizontal(|ui| {
                     ui.colored_label(
                         egui::Color32::from_rgb(0, 255, 0),
-                        egui::RichText::new("≡ EVE MULTIBOX ≡").strong(),
+                        egui::RichText::new("=== EVE MULTIBOX ===").strong(),
                     );
                 });
 
@@ -63,16 +63,16 @@ impl eframe::App for OverlayApp {
                     ui.label("Daemon:");
                     let daemon_running = std::path::Path::new("/tmp/eve-multibox.sock").exists();
                     if daemon_running {
-                        ui.colored_label(egui::Color32::from_rgb(0, 255, 0), "● Running");
+                        ui.colored_label(egui::Color32::from_rgb(0, 255, 0), "[*] Running");
                     } else {
-                        ui.colored_label(egui::Color32::from_rgb(255, 0, 0), "● Stopped");
+                        ui.colored_label(egui::Color32::from_rgb(255, 0, 0), "[X] Stopped");
                     }
                 });
 
                 ui.add_space(5.0);
 
                 // Restack button
-                if ui.button("↻ Restack Windows").clicked() {
+                if ui.button("[R] Restack Windows").clicked() {
                     let x11_clone = Arc::clone(&self.x11);
                     let config = self.config.clone();
                     std::thread::spawn(move || {
@@ -102,7 +102,7 @@ impl eframe::App for OverlayApp {
 
                 for (i, window) in windows.iter().enumerate() {
                     let text = if i == current_index {
-                        format!("▶ [{}] {}", i + 1, &window.title[..window.title.len().min(20)])
+                        format!("> [{}] {}", i + 1, &window.title[..window.title.len().min(20)])
                     } else {
                         format!("  [{}] {}", i + 1, &window.title[..window.title.len().min(20)])
                     };
