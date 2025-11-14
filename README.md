@@ -18,6 +18,12 @@ High-performance EVE Online multiboxing tool for Linux (X11 & Wayland), inspired
 - **Auto-detects display resolution** - works on any monitor setup
 - **Multi-compositor support** - Works on X11, KDE Plasma (Wayland), Sway, and Hyprland
 
+## Roadmap
+- Comprehensive documentation
+- More configuration options
+- Optional preview windows
+- Overlay redesign
+
 ## Quick Install
 
 ### One-Line Installer (Recommended)
