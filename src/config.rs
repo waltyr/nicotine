@@ -130,14 +130,6 @@ impl Config {
         Ok(())
     }
 
-    pub fn eve_x(&self) -> i32 {
-        ((self.display_width - self.eve_width) / 2) as i32
-    }
-
-    pub fn eve_y(&self) -> i32 {
-        0
-    }
-
     pub fn eve_height_adjusted(&self) -> u32 {
         self.display_height - self.panel_height
     }
@@ -146,43 +138,6 @@ impl Config {
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn test_eve_x_centers_window() {
-        let config = Config {
-            display_width: 1920,
-            display_height: 1080,
-            panel_height: 0,
-            eve_width: 1000,
-            eve_height: 1080,
-            overlay_x: 10.0,
-            overlay_y: 10.0,
-            enable_mouse_buttons: true,
-            forward_button: 276,
-            backward_button: 275,
-        };
-
-        // Window should be centered: (1920 - 1000) / 2 = 460
-        assert_eq!(config.eve_x(), 460);
-    }
-
-    #[test]
-    fn test_eve_y_is_zero() {
-        let config = Config {
-            display_width: 1920,
-            display_height: 1080,
-            panel_height: 0,
-            eve_width: 1000,
-            eve_height: 1080,
-            overlay_x: 10.0,
-            overlay_y: 10.0,
-            enable_mouse_buttons: true,
-            forward_button: 276,
-            backward_button: 275,
-        };
-
-        assert_eq!(config.eve_y(), 0);
-    }
 
     #[test]
     fn test_eve_height_adjusted_with_panel() {

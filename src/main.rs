@@ -43,7 +43,7 @@ fn create_window_manager() -> Result<Arc<dyn WindowManager>> {
             );
 
             match compositor {
-                WaylandCompositor::KDE => {
+                WaylandCompositor::Kde => {
                     println!("Using KDE/KWin backend");
                     Ok(Arc::new(KWinManager::new()?))
                 }
@@ -55,7 +55,7 @@ fn create_window_manager() -> Result<Arc<dyn WindowManager>> {
                     println!("Using Hyprland backend");
                     Ok(Arc::new(HyprlandManager::new()?))
                 }
-                WaylandCompositor::GNOME => {
+                WaylandCompositor::Gnome => {
                     anyhow::bail!("GNOME Shell is not yet supported due to restrictive window management APIs")
                 }
                 WaylandCompositor::Other => {

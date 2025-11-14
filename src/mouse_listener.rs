@@ -28,7 +28,7 @@ impl MouseListener {
                     if name.starts_with("event") {
                         if let Ok(device) = Device::open(&path) {
                             // Check if device has mouse side buttons
-                            if device.supported_keys().map_or(false, |keys| {
+                            if device.supported_keys().is_some_and(|keys| {
                                 keys.contains(Key::BTN_SIDE) || keys.contains(Key::BTN_EXTRA)
                             }) {
                                 println!(

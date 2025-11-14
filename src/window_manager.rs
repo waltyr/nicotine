@@ -40,10 +40,10 @@ pub enum DisplayServer {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum WaylandCompositor {
-    KDE,      // KDE Plasma / KWin
+    Kde,      // KDE Plasma / KWin
     Sway,     // Sway (wlroots)
     Hyprland, // Hyprland
-    GNOME,    // GNOME Shell
+    Gnome,    // GNOME Shell
     Other,    // Other/unknown compositor
 }
 
@@ -70,10 +70,10 @@ pub fn detect_wayland_compositor() -> WaylandCompositor {
     if let Ok(desktop) = std::env::var("XDG_CURRENT_DESKTOP") {
         let desktop_lower = desktop.to_lowercase();
         if desktop_lower.contains("kde") {
-            return WaylandCompositor::KDE;
+            return WaylandCompositor::Kde;
         }
         if desktop_lower.contains("gnome") {
-            return WaylandCompositor::GNOME;
+            return WaylandCompositor::Gnome;
         }
         if desktop_lower.contains("sway") {
             return WaylandCompositor::Sway;
