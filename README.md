@@ -116,6 +116,42 @@ sudo evtest  # Select your mouse, then click buttons to see their codes
 - Check permissions: `ls -l /dev/input/event*`
 - Disable if needed: `enable_mouse_buttons = false` in config
 
+### Keyboard Bindings
+
+**Quick Setup:**
+1. Add your user to the `input` group:
+   ```bash
+   sudo usermod -a -G input $USER
+   ```
+2. **Log out and log back in** (required for group membership to take effect)
+
+**Configuration:**
+Edit `~/.config/nicotine/config.toml` to customize:
+```toml
+enable_keyboard_buttons = true
+forward_button = 15  # TAB Key
+backward_button = 15  # TAB Key - SHIFT modifier applied automatically
+keyboard_device_path = None # Device path /dev/input/eventX (OPTIONAL but you may need to set this if keybinds don't work)
+```
+
+**Common button codes:**
+- `15` = KEY_TAB (TAB Key)
+
+**Find your button codes:**
+```bash
+sudo evtest  # Select your keyboard, then click buttons to see their codes
+```
+
+**Troubleshooting:**
+- Verify group membership: `groups | grep input`
+- Check permissions: `ls -l /dev/input/event*`
+- Disable if needed: `enable_keyboard_buttons = false` in config
+- Check for other device events, sometimes keyboards will have multiple events but only one is handling inputs
+```bash
+cat /proc/bus/input/devices | grep -B 5 "kbd" | grep -E "Name|Handlers"
+sudo evtest /dev/input/eventX # Replace X with the correct event number i.e event11
+```
+
 ### Overlay Controls
 
 - **Restack Windows** - Re-center all EVE clients
