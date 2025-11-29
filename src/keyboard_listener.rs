@@ -79,10 +79,21 @@ impl KeyboardListener {
         }
 
         let forward_key = self.config.forward_key;
+        let backward_key = self.config.backward_key;
+        let modifier_key = self.config.modifier_key;
         let keyboard_device_path = self.config.keyboard_device_path.clone();
+        let minimize_inactive = self.config.minimize_inactive;
 
         let handle = std::thread::spawn(move || {
-            match Self::run_listener(wm, state, forward_key, keyboard_device_path) {
+            match Self::run_listener(
+                wm,
+                state,
+                forward_key,
+                backward_key,
+                modifier_key,
+                keyboard_device_path,
+                minimize_inactive,
+            ) {
                 Ok(_) => println!("Keyboard listener stopped"),
                 Err(e) => println!("Keyboard listener error: {}", e),
             }
@@ -95,7 +106,10 @@ impl KeyboardListener {
         wm: Arc<dyn WindowManager>,
         state: Arc<Mutex<CycleState>>,
         forward_key: u16,
+        backward_key: u16,
+        modifier_key: Option<u16>,
         keyboard_device_path: Option<String>,
+        minimize_inactive: bool,
     ) -> Result<()> {
         let mut device = Self::find_keyboard_device(keyboard_device_path.as_deref()).context(
             "Failed to find keyboard device. Make sure you have permission to read /dev/input/event*",
@@ -104,18 +118,40 @@ impl KeyboardListener {
         // DON'T grab the device - we only want to passively listen to events
         // Grabbing would prevent normal keyboard usage!
 
-        println!("Listening for keyboard keys: forward={}", forward_key);
+        println!(
+            "Listening for keyboard keys: forward={} backward={}",
+            forward_key, backward_key
+        );
+        let mut modifier_pressed = false;
 
         loop {
             for event in device.fetch_events()? {
                 if let InputEventKind::Key(key) = event.kind() {
                     let code = key.code();
+                    //let mut modifier_pressed = false;
+                    if let Some(mod_key) = modifier_key {
+                        if code == mod_key {
+                            println!("Modifier Pressed");
+                            modifier_pressed = event.value() != 0;
+                        }
+                    }
                     //print(code);
-                    if event.value() == 1 {
-                        if code == forward_key {
-                            println!("Forward key pressed");
-                            if let Err(e) = Self::cycle_forward(&wm, &state) {
+                    if event.value() != 0 {
+                        // Have to check modifier + backwards first, otherwise if backward == forward it ignores the modifier flag
+                        if code == backward_key && modifier_pressed {
+                            println!("Backward + Modifier button pressed");
+                            if let Err(e) = Self::cycle_backward(&wm, &state, minimize_inactive) {
+                                eprintln!("Failed to cycle backward: {}", e);
+                            }
+                        } else if code == forward_key {
+                            println!("Forward button pressed");
+                            if let Err(e) = Self::cycle_forward(&wm, &state, minimize_inactive) {
                                 eprintln!("Failed to cycle forward: {}", e);
+                            }
+                        } else if code == backward_key {
+                            println!("Backward button pressed");
+                            if let Err(e) = Self::cycle_backward(&wm, &state, minimize_inactive) {
+                                eprintln!("Failed to cycle backward: {}", e);
                             }
                         }
                     }
@@ -124,7 +160,11 @@ impl KeyboardListener {
         }
     }
 
-    fn cycle_forward(wm: &Arc<dyn WindowManager>, state: &Arc<Mutex<CycleState>>) -> Result<()> {
+    fn cycle_forward(
+        wm: &Arc<dyn WindowManager>,
+        state: &Arc<Mutex<CycleState>>,
+        minimize_inactive: bool,
+    ) -> Result<()> {
         let mut state = state.lock().unwrap();
 
         // Sync with active window first
@@ -132,11 +172,15 @@ impl KeyboardListener {
             state.sync_with_active(active);
         }
 
-        state.cycle_forward(&**wm)?;
+        state.cycle_forward(&**wm, minimize_inactive)?;
         Ok(())
     }
 
-    fn cycle_backward(wm: &Arc<dyn WindowManager>, state: &Arc<Mutex<CycleState>>) -> Result<()> {
+    fn cycle_backward(
+        wm: &Arc<dyn WindowManager>,
+        state: &Arc<Mutex<CycleState>>,
+        minimize_inactive: bool,
+    ) -> Result<()> {
         let mut state = state.lock().unwrap();
 
         // Sync with active window first
@@ -144,7 +188,7 @@ impl KeyboardListener {
             state.sync_with_active(active);
         }
 
-        state.cycle_backward(&**wm)?;
+        state.cycle_backward(&**wm, minimize_inactive)?;
         Ok(())
     }
 }

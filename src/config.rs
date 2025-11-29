@@ -23,7 +23,7 @@ pub struct Config {
     #[serde(default = "default_forward_key")]
     pub forward_key: u16, // KEY_TAB (15) - Tab for forward, Shift+Tab for backward
     #[serde(default = "default_backward_key")]
-    pub backward_key: u16, // KEY_TAB (15) - Same key, Shift modifier tracked internally
+    pub backward_key: u16, // KEY_TAB (15) - Track SHIFT modifier internally
     #[serde(default = "default_show_overlay")]
     pub show_overlay: bool,
     #[serde(default = "default_mouse_device_path")]
@@ -32,6 +32,8 @@ pub struct Config {
     pub minimize_inactive: bool,
     #[serde(default = "default_keyboard_device_path")]
     pub keyboard_device_path: Option<String>,
+    #[serde(default = "default_modifier_key")]
+    pub modifier_key: Option<u16>,
 }
 
 fn default_enable_mouse() -> bool {
@@ -55,7 +57,7 @@ fn default_forward_key() -> u16 {
 }
 
 fn default_backward_key() -> u16 {
-    15 // KEY_TAB (with Shift modifier tracked internally)
+    15 // KEY_TAB (Modifier applied if set)
 }
 
 fn default_show_overlay() -> bool {
@@ -72,6 +74,10 @@ fn default_minimize_inactive() -> bool {
 
 fn default_keyboard_device_path() -> Option<String> {
     None
+}
+
+fn default_modifier_key() -> Option<u16> {
+    None // No modifier for backward shifting by default
 }
 
 impl Config {
@@ -164,6 +170,7 @@ impl Config {
             mouse_device_path: None,
             minimize_inactive: false,
             keyboard_device_path: None,
+            modifier_key: None,
         };
 
         // Save the generated config
@@ -200,6 +207,7 @@ impl Config {
             mouse_device_path: None,
             minimize_inactive: false,
             keyboard_device_path: None,
+            modifier_key: None,
         };
 
         if let Some(parent) = config_path.parent() {
@@ -240,6 +248,7 @@ mod tests {
             mouse_device_path: None,
             minimize_inactive: false,
             keyboard_device_path: None,
+            modifier_key: None,
         };
 
         // Height should be: 1080 - 40 = 1040
@@ -266,6 +275,7 @@ mod tests {
             mouse_device_path: None,
             minimize_inactive: false,
             keyboard_device_path: None,
+            modifier_key: None,
         };
 
         assert_eq!(config.eve_height_adjusted(), 1080);
@@ -291,6 +301,7 @@ mod tests {
             mouse_device_path: None,
             minimize_inactive: false,
             keyboard_device_path: None,
+            modifier_key: None,
         };
 
         let toml_str = toml::to_string(&config).unwrap();
