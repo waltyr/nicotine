@@ -132,11 +132,12 @@ enable_keyboard_buttons = true
 forward_key = 15  # TAB Key
 backward_key = 15  # TAB Key - modifier_key applied if set in config
 keyboard_device_path = None # Device path /dev/input/eventX (OPTIONAL but you may need to set this if keybinds don't work)
-modifier_key = None # You will have to add this if you want to-do something like SHIFT + TAB to backwards cycle
+modifier_key = None # You will have to add this if you want a modifier key for backward cycling
 ```
 
 **Common button codes:**
 - `15` = KEY_TAB (TAB Key)
+- `42` = LEFT_SHIFT
 
 **Find your button codes:**
 ```bash
@@ -144,9 +145,7 @@ sudo evtest  # Select your keyboard, then click buttons to see their codes
 ```
 
 **Troubleshooting:**
-- Verify group membership: `groups | grep input`
-- Check permissions: `ls -l /dev/input/event*`
-- Disable if needed: `enable_keyboard_buttons = false` in config
+- Make sure you've enabled keyboard buttons: `enable_keyboard_buttons = true` in config
 - Check for other device events, sometimes keyboards will have multiple events but only one is handling inputs
 ```bash
 cat /proc/bus/input/devices | grep -B 5 "kbd" | grep -E "Name|Handlers"
