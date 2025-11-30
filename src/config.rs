@@ -160,10 +160,10 @@ impl Config {
             eve_height: display_height,
             overlay_x: 10.0,
             overlay_y: 10.0,
-            enable_mouse_buttons: false,
+            enable_mouse_buttons: true,
             forward_button: 276,  // BTN_SIDE (button 9)
             backward_button: 275, // BTN_EXTRA (button 8)
-            enable_keyboard_buttons: true,
+            enable_keyboard_buttons: false,
             forward_key: 15,  // KEY_TAB
             backward_key: 15, // KEY_TAB (with Shift)
             show_overlay: true,
@@ -197,10 +197,10 @@ impl Config {
             eve_height: display_height,
             overlay_x: 10.0,
             overlay_y: 10.0,
-            enable_mouse_buttons: false,
+            enable_mouse_buttons: true,
             forward_button: 276,
             backward_button: 275,
-            enable_keyboard_buttons: true,
+            enable_keyboard_buttons: false,
             forward_key: 15,
             backward_key: 15,
             show_overlay: true,
