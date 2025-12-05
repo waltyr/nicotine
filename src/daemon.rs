@@ -105,7 +105,7 @@ impl Daemon {
             match keyboard_listener.spawn(wm_clone, state_clone) {
                 Ok(_) => println!("Keyboard key listener started"),
                 Err(e) => {
-                    eprintln!("Warning: Could not start mouse listener: {}", e);
+                    eprintln!("Warning: Could not start keyboard listener: {}", e);
                     eprintln!(
                         "Keyboard keys will not work.  You can disable this warning by setting"
                     );
